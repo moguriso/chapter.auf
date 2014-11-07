@@ -158,7 +158,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 
 	unsigned char* tmp_buffer = (unsigned char*)calloc(1024 * 10, sizeof(unsigned char));
-	int tmp_buf_size = 1024;
+	int tmp_buf_size = 1024*10;
 	int tmp_buf_len = 0;
 
 	INPUT_INFO &vii = video->get_input_info();
@@ -288,9 +288,13 @@ int _tmain(int argc, _TCHAR* argv[])
 
 				tmp_buf_len += write_chapter(tmp_buffer, idx, i - seri, title, &vii);
 				if (tmp_buf_len >= tmp_buf_size){
+					unsigned char* ppp;
 					tmp_buf_size += tmp_buf_size;
-					tmp_buffer = (unsigned char*)realloc((void*)tmp_buffer, tmp_buf_size);
-					memset((void*)(tmp_buffer + tmp_buf_len), 0, (tmp_buf_size - tmp_buf_len));
+					ppp = (unsigned char*)::calloc(tmp_buf_size, sizeof(unsigned char));
+					memset((void*)ppp, 0, tmp_buf_size);
+					memcpy((void*)ppp, (void*)tmp_buffer, tmp_buf_len);
+					free((void*)tmp_buffer);
+					tmp_buffer = ppp;
 				}
 				idx++;
 
@@ -306,6 +310,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	fputs((const char*)tmp_buffer, fout);
 	fflush(fout);
 	fclose(fout);
+	free((void*)tmp_buffer);
 
 	// ソースを解放
 	video->release();
