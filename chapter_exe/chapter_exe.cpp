@@ -216,8 +216,9 @@ int _tmain(int argc, _TCHAR* argv[])
 	// start searching
 	for (int i=0; i<n; i++) {
 		// searching foward frame
-		if (seri == 0) {
-			int naudio = audio->read_audio(i+setseri-1, buf);
+		int seri_ratio = i + setseri - 1;
+		if ((seri_ratio < n)&&(seri == 0)) {
+			int naudio = audio->read_audio(seri_ratio, buf);
 			naudio *= aii.audio_format->nChannels;
 
 			bool skip = false;
