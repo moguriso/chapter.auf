@@ -10,18 +10,23 @@
 #define FIELD_PICTURE	2
 int mvec(unsigned char* current_pix,unsigned char* bef_pix,int lx,int ly,int threshold,int pict_struct);
 
-void write_chapter(FILE *f, int nchap, int frame, TCHAR *title, INPUT_INFO *iip) {
+static int write_chapter(unsigned char* f, int nchap, int frame, TCHAR *title, INPUT_INFO *iip) {
 	LONGLONG t,h,m;
 	double s;
+	char tmp[1024] = {};
+	int write_len = 0;
 
 	t = (LONGLONG)frame * 10000000 * iip->scale / iip->rate;
 	h = t / 36000000000;
 	m = (t - h * 36000000000) / 600000000;
 	s = (t - h * 36000000000 - m * 600000000) / 10000000.0;
 
-	fprintf(f, "CHAPTER%02d=%02d:%02d:%06.3f\n", nchap, (int)h, (int)m, s);
-	fprintf(f, "CHAPTER%02dNAME=%s\n", nchap, title);
-	fflush(f);
+	write_len += sprintf(tmp, "CHAPTER%02d=%02d:%02d:%06.3f\n", nchap, (int)h, (int)m, s);
+	strncat((char*)f, tmp, (size_t)write_len);
+	memset(tmp, 0, sizeof(tmp));
+	write_len += sprintf(tmp, "CHAPTER%02dNAME=%s\n", nchap, title);
+	strncat((char*)f, tmp, (size_t)write_len);
+	return write_len;
 }
 
 int _tmain(int argc, _TCHAR* argv[])
@@ -152,6 +157,10 @@ int _tmain(int argc, _TCHAR* argv[])
 		return -1;
 	}
 
+	unsigned char* tmp_buffer = (unsigned char*)calloc(1024 * 10, sizeof(unsigned char));
+	int tmp_buf_size = 1024;
+	int tmp_buf_len = 0;
+
 	INPUT_INFO &vii = video->get_input_info();
 	INPUT_INFO &aii = audio->get_input_info();
 
@@ -276,7 +285,12 @@ int _tmain(int argc, _TCHAR* argv[])
 				TCHAR title[256];
 				sprintf_s(title, _T("%dフレーム %s SCPos:%d"), seri, mark, max_pos);
 
-				write_chapter(fout, idx, i-seri, title, &vii);
+				tmp_buf_len += write_chapter(tmp_buffer, idx, i - seri, title, &vii);
+				if (tmp_buf_len >= tmp_buf_size){
+					tmp_buf_size += tmp_buf_size;
+					tmp_buffer = (unsigned char*)realloc((void*)tmp_buffer, tmp_buf_size);
+					memset((void*)(tmp_buffer + tmp_buf_len), 0, (tmp_buf_size - tmp_buf_len));
+				}
 				idx++;
 
 				_aligned_free(pix0);
@@ -287,6 +301,10 @@ int _tmain(int argc, _TCHAR* argv[])
 			seri++;
 		}
 	}
+
+	fputs((const char*)tmp_buffer, fout);
+	fflush(fout);
+	fclose(fout);
 
 	// ソースを解放
 	video->release();
