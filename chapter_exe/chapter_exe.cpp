@@ -230,6 +230,8 @@ int _tmain(int argc, _TCHAR* argv[])
 			}
 			if (skip) {
 				i += setseri;
+				if (i >= n)
+					i = (n - 1);
 			}
 		}
 
