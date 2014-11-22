@@ -148,7 +148,14 @@ public:
 	int read_audio(int frame, short *buf) {
 		int start = (int)((double)frame * _ip.audio_format->nSamplesPerSec / _ip.rate * _ip.scale);
 		int end = (int)((double)(frame + 1) * _ip.audio_format->nSamplesPerSec / _ip.rate * _ip.scale);
-		return _ipt->func_read_audio(_ih, start, end - start, buf);
+
+		int last_frame = _ip.n - frame;
+		int read_length = end - start;
+		if (read_length > last_frame){
+			read_length = last_frame;
+		}
+
+		return _ipt->func_read_audio(_ih, start, read_length, buf);
 	}
 };
 
