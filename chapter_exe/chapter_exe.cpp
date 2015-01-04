@@ -157,9 +157,10 @@ int _tmain(int argc, _TCHAR* argv[])
 		return -1;
 	}
 
-	unsigned char* tmp_buffer = (unsigned char*)calloc(1024 * 10, sizeof(unsigned char));
-	int tmp_buf_size = 1024*10;
+	int tmp_buf_size = 1024;
+	unsigned char* tmp_buffer = (unsigned char*)calloc(tmp_buf_size, sizeof(unsigned char));
 	int tmp_buf_len = 0;
+	int buffer_update_ratio = tmp_buf_size - (tmp_buf_size*0.2);
 
 	INPUT_INFO &vii = video->get_input_info();
 	INPUT_INFO &aii = audio->get_input_info();
@@ -289,10 +290,11 @@ int _tmain(int argc, _TCHAR* argv[])
 				sprintf_s(title, _T("%dフレーム %s SCPos:%d"), seri, mark, max_pos);
 
 				tmp_buf_len += write_chapter(tmp_buffer, idx, i - seri, title, &vii);
-				if (tmp_buf_len >= tmp_buf_size){
-					unsigned char* ppp;
+				if (tmp_buf_len >= buffer_update_ratio){
+					unsigned char* ppp = NULL;
 					tmp_buf_size += tmp_buf_size;
-					ppp = (unsigned char*)::calloc(tmp_buf_size, sizeof(unsigned char));
+					buffer_update_ratio = tmp_buf_size - (tmp_buf_size*0.2);
+					ppp = (unsigned char*)calloc(tmp_buf_size, sizeof(unsigned char));
 					memset((void*)ppp, 0, tmp_buf_size);
 					memcpy((void*)ppp, (void*)tmp_buffer, tmp_buf_len);
 					free((void*)tmp_buffer);
