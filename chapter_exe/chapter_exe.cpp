@@ -1,4 +1,4 @@
-﻿// chapter_exe.cpp : コンソール アプリケーションのエントリ ポイントを定義します。
+// chapter_exe.cpp : コンソール アプリケーションのエントリ ポイントを定義します。
 //
 
 #include "stdafx.h"
