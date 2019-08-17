@@ -1,6 +1,7 @@
 Debug/
 Release/
 ipch/
+.vs/
 *.lib
 *.opensdf
 *.sdf
@@ -8,3 +9,4 @@ ipch/
 *.vcxproj.user
 *.sln
 *.vcxproj
+*.diagsession
